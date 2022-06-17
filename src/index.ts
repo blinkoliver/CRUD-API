@@ -1,11 +1,19 @@
 import { createServer } from "http";
-import { users } from "./users.js";
 import dotenv from "dotenv";
+import { parseURL } from "./utils";
+import { users } from "./users";
+import { findOne } from "./controllers";
+
 dotenv.config();
 const PORT = process.env.PORT || 3000;
 
-const getHandler = (req: any) => {
-  console.log("get", req);
+const getHandler = async (req: any) => {
+  const parseString = parseURL(req);
+  if (req === parseString) {
+    return users;
+  } else {
+    return await findOne(parseString);
+  }
 };
 const postHandler = (req: any) => {
   console.log("post", req);
@@ -20,7 +28,16 @@ const deleteHandler = (req: any) => {
 const server = createServer(async (req, res) => {
   switch (req.method) {
     case "GET":
-      getHandler(req.url);
+      const result = await getHandler(req.url);
+      if (result) {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ data: result }));
+      } else {
+        res.writeHead(404, "doesn't exist", {
+          "Content-Type": "application/json",
+        });
+        res.end("error");
+      }
       break;
     case "POST":
       postHandler(req.url);
@@ -33,12 +50,6 @@ const server = createServer(async (req, res) => {
       break;
     default:
   }
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(
-    JSON.stringify({
-      data: "Hello World!",
-    })
-  );
 });
 
 server.listen(PORT);
