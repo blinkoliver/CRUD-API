@@ -7,7 +7,7 @@ interface user {
   hobbies: string[];
 }
 
-export const findOne = (id: string) => {
+export const findOne = (id: string): any => {
   const desired = users.find((el: user) => el.id === id);
   if (desired) {
     return desired;
@@ -15,10 +15,10 @@ export const findOne = (id: string) => {
     return undefined;
   }
 };
-export const writeOne = (data: any): void => {
+export const writeOne = (data: any): any => {
   const newUser = { ...data, id: uuidv4() };
   users.push(newUser);
-  console.log(users);
+  return newUser;
 };
 
 export const updateOne = (id: string, data: any): any => {
@@ -34,6 +34,16 @@ export const updateOne = (id: string, data: any): any => {
     users.splice(indexInUsers, 1);
     users.splice(indexInUsers, 0, updatedUser);
     return updatedUser;
+  } else {
+    return undefined;
+  }
+};
+
+export const deleteOne = (id: string): string | undefined => {
+  const indexInUsers = users.findIndex((el) => el.id === id);
+  if (indexInUsers >= 0) {
+    users.splice(indexInUsers, 1);
+    return "success";
   } else {
     return undefined;
   }
